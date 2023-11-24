@@ -7,7 +7,14 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 
 main().catch(err => console.log(err));
-
+app.use(cors());
+app.use(function (req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.header("Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
 async function main() {
   await mongoose.connect('mongodb+srv://g00401785:mongostuff@cluster0.bzyqhu3.mongodb.net/?retryWrites=true&w=majority');
 
@@ -22,15 +29,14 @@ const bookSchema = new mongoose.Schema({
 
 const bookModel = new mongoose.model('books', bookSchema);
 
+app.put('/api/book/:id', async (req, res) => {
+  console.log("Update: " + req.params.id);
 
-app.use(cors());
-app.use(function (req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-  res.header("Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept");
-  next();
-});
+  let book = await bookModel.findByIdAndUpdate(req.params.id, req.body, { new: true });
+  res.send(book);
+})
+
+
 
 const bodyParser = require("body-parser");
 
